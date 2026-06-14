@@ -1,0 +1,434 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans)}
+.app{min-height:600px;background:var(--color-background-tertiary)}
+.sidebar{width:220px;background:var(--color-background-primary);border-right:0.5px solid var(--color-border-tertiary);padding:1rem 0;position:fixed;top:0;left:0;height:100%;z-index:10}
+.sidebar-logo{padding:0 1.25rem 1rem;border-bottom:0.5px solid var(--color-border-tertiary);margin-bottom:0.5rem}
+.logo-text{font-size:17px;font-weight:500;color:var(--color-text-primary)}
+.logo-sub{font-size:11px;color:var(--color-text-secondary);margin-top:1px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 1.25rem;cursor:pointer;font-size:14px;color:var(--color-text-secondary);border-left:2px solid transparent;transition:all .15s}
+.nav-item:hover{background:var(--color-background-secondary);color:var(--color-text-primary)}
+.nav-item.active{color:#1D9E75;border-left-color:#1D9E75;background:rgba(29,158,117,0.07);font-weight:500}
+.nav-item i{font-size:18px}
+.nav-section{font-size:10px;font-weight:500;color:var(--color-text-tertiary);padding:1rem 1.25rem 0.25rem;letter-spacing:.06em;text-transform:uppercase}
+.main{margin-left:220px;padding:1.5rem}
+.page{display:none}.page.active{display:block}
+.page-title{font-size:18px;font-weight:500;color:var(--color-text-primary);margin-bottom:1.25rem}
+.cards-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:1.5rem}
+.metric{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:1rem}
+.metric-label{font-size:12px;color:var(--color-text-secondary);margin-bottom:4px}
+.metric-value{font-size:22px;font-weight:500;color:var(--color-text-primary)}
+.metric-sub{font-size:11px;color:var(--color-text-secondary);margin-top:2px}
+.card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:1.25rem;margin-bottom:1rem}
+.card-title{font-size:14px;font-weight:500;color:var(--color-text-primary);margin-bottom:1rem}
+.med-item{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:0.5px solid var(--color-border-tertiary)}
+.med-item:last-child{border-bottom:none}
+.med-icon{width:36px;height:36px;border-radius:var(--border-radius-md);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.med-icon.green{background:#E1F5EE;color:#0F6E56}
+.med-icon.blue{background:#E6F1FB;color:#185FA5}
+.med-icon.amber{background:#FAEEDA;color:#854F0B}
+.med-name{font-size:13px;font-weight:500;color:var(--color-text-primary)}
+.med-time{font-size:12px;color:var(--color-text-secondary)}
+.med-status{margin-left:auto;font-size:11px;padding:3px 10px;border-radius:20px;font-weight:500}
+.status-taken{background:#E1F5EE;color:#0F6E56}
+.status-pending{background:#FAEEDA;color:#854F0B}
+.status-missed{background:#FCEBEB;color:#A32D2D}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);font-size:13px;cursor:pointer;background:var(--color-background-primary);color:var(--color-text-primary);font-family:var(--font-sans)}
+.btn:hover{background:var(--color-background-secondary)}
+.btn-primary{background:#1D9E75;color:#fff;border-color:#1D9E75}
+.btn-primary:hover{background:#0F6E56}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.chat-container{display:flex;flex-direction:column;gap:10px;max-height:340px;overflow-y:auto;margin-bottom:1rem;padding-right:4px}
+.chat-msg{display:flex;gap:10px;align-items:flex-start}
+.chat-msg.user{flex-direction:row-reverse}
+.chat-bubble{padding:10px 14px;border-radius:12px;font-size:13px;line-height:1.5;max-width:80%}
+.chat-bubble.ai{background:var(--color-background-secondary);color:var(--color-text-primary);border-radius:4px 12px 12px 12px}
+.chat-bubble.user{background:#1D9E75;color:#fff;border-radius:12px 4px 12px 12px}
+.chat-avatar{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;flex-shrink:0}
+.ai-avatar{background:#E1F5EE;color:#0F6E56}
+.user-avatar{background:#E6F1FB;color:#185FA5}
+.chat-input-row{display:flex;gap:8px}
+.chat-input-row input{flex:1;padding:9px 12px;border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);font-size:13px;background:var(--color-background-primary);color:var(--color-text-primary);font-family:var(--font-sans)}
+.chip{display:inline-block;padding:4px 10px;background:var(--color-background-secondary);border-radius:20px;font-size:12px;color:var(--color-text-secondary);cursor:pointer;margin:3px}
+.chip:hover{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary)}
+.progress-bar{height:6px;background:var(--color-background-secondary);border-radius:3px;overflow:hidden;margin-top:6px}
+.progress-fill{height:100%;border-radius:3px;background:#1D9E75;transition:width .4s}
+.vitals-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.vital-item{padding:12px;background:var(--color-background-secondary);border-radius:var(--border-radius-md)}
+.vital-label{font-size:11px;color:var(--color-text-secondary);margin-bottom:4px}
+.vital-val{font-size:18px;font-weight:500;color:var(--color-text-primary)}
+.vital-unit{font-size:11px;color:var(--color-text-secondary);font-weight:400}
+.vital-trend{font-size:11px;margin-top:2px}
+.trend-good{color:#0F6E56}.trend-warn{color:#854F0B}
+.add-form{display:none;flex-direction:column;gap:10px;padding-top:1rem;border-top:0.5px solid var(--color-border-tertiary);margin-top:1rem}
+.add-form.open{display:flex}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.form-field{display:flex;flex-direction:column;gap:4px}
+.form-field label{font-size:12px;color:var(--color-text-secondary)}
+.form-field input,.form-field select{padding:8px 10px;border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);font-size:13px;background:var(--color-background-primary);color:var(--color-text-primary);font-family:var(--font-sans)}
+.alert-banner{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:var(--border-radius-md);margin-bottom:1rem;font-size:13px}
+.alert-warning{background:#FAEEDA;color:#854F0B;border:0.5px solid #EF9F27}
+.alert-success{background:#E1F5EE;color:#0F6E56;border:0.5px solid #5DCAA5}
+.tip-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.badge{font-size:11px;padding:2px 8px;border-radius:20px;font-weight:500}
+.badge-green{background:#E1F5EE;color:#0F6E56}
+.badge-blue{background:#E6F1FB;color:#185FA5}
+.badge-amber{background:#FAEEDA;color:#854F0B}
+canvas{width:100%!important}
+</style>
+
+<h2 class="sr-only">MediAid — AI health assistant for medication tracking, vitals, and wellness insights</h2>
+
+<div class="app" style="display:flex">
+  <div class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-text"><i class="ti ti-heart-rate" style="color:#1D9E75"></i> MediAid</div>
+      <div class="logo-sub">SDG 3 — Good Health & Well-Being</div>
+    </div>
+    <div class="nav-section">Main</div>
+    <div class="nav-item active" onclick="showPage('dashboard',this)"><i class="ti ti-layout-dashboard"></i> Dashboard</div>
+    <div class="nav-item" onclick="showPage('medications',this)"><i class="ti ti-pill"></i> Medications</div>
+    <div class="nav-item" onclick="showPage('vitals',this)"><i class="ti ti-activity"></i> Vitals</div>
+    <div class="nav-section">AI Tools</div>
+    <div class="nav-item" onclick="showPage('ai',this)"><i class="ti ti-message-chatbot"></i> AI Assistant</div>
+    <div class="nav-item" onclick="showPage('insights',this)"><i class="ti ti-chart-line"></i> Insights</div>
+  </div>
+
+  <div class="main">
+    <!-- DASHBOARD -->
+    <div class="page active" id="page-dashboard">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem">
+        <div class="page-title" style="margin:0">Good morning, Priya 👋</div>
+        <div style="font-size:12px;color:var(--color-text-secondary)" id="today-date"></div>
+      </div>
+
+      <div class="alert-banner alert-warning" id="missed-alert">
+        <i class="ti ti-alert-circle" style="font-size:18px"></i>
+        <span>You have 1 missed dose — Metformin 500mg was due at 8:00 AM.</span>
+        <button class="btn" style="margin-left:auto;font-size:12px" onclick="markTaken('metformin')">Mark taken</button>
+      </div>
+
+      <div class="cards-row">
+        <div class="metric"><div class="metric-label">Meds today</div><div class="metric-value" id="meds-taken-count">2/3</div><div class="metric-sub">taken on time</div></div>
+        <div class="metric"><div class="metric-label">Adherence</div><div class="metric-value">87%</div><div class="metric-sub">this month</div></div>
+        <div class="metric"><div class="metric-label">Blood pressure</div><div class="metric-value">118/76</div><div class="metric-sub">mmHg — normal</div></div>
+        <div class="metric"><div class="metric-label">Streak</div><div class="metric-value">12 days</div><div class="metric-sub">consistent tracking</div></div>
+      </div>
+
+      <div class="grid2">
+        <div class="card">
+          <div class="card-title">Today's medications</div>
+          <div class="med-item">
+            <div class="med-icon green"><i class="ti ti-pill"></i></div>
+            <div><div class="med-name">Metformin 500mg</div><div class="med-time">8:00 AM — with breakfast</div></div>
+            <div class="med-status status-missed" id="metformin-status">Missed</div>
+          </div>
+          <div class="med-item">
+            <div class="med-icon blue"><i class="ti ti-pill"></i></div>
+            <div><div class="med-name">Amlodipine 5mg</div><div class="med-time">2:00 PM — after lunch</div></div>
+            <div class="med-status status-taken">Taken</div>
+          </div>
+          <div class="med-item">
+            <div class="med-icon amber"><i class="ti ti-pill"></i></div>
+            <div><div class="med-name">Vitamin D3</div><div class="med-time">9:00 PM — after dinner</div></div>
+            <div class="med-status status-pending">Pending</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">Weekly adherence</div>
+          <div id="week-bars"></div>
+          <div style="margin-top:1rem">
+            <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:6px">Monthly goal — 90%</div>
+            <div class="progress-bar"><div class="progress-fill" style="width:87%"></div></div>
+            <div style="font-size:12px;color:var(--color-text-secondary);margin-top:4px">87% — keep it up!</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">AI health tip of the day</div>
+        <div style="display:flex;gap:12px;align-items:flex-start">
+          <div style="width:36px;height:36px;border-radius:50%;background:#E1F5EE;display:flex;align-items:center;justify-content:center;flex-shrink:0"><i class="ti ti-bulb" style="color:#0F6E56;font-size:18px"></i></div>
+          <div>
+            <div style="font-size:13px;color:var(--color-text-primary);line-height:1.6">Taking Metformin consistently with meals reduces gastrointestinal side effects by up to 30%. Try setting a breakfast alarm to pair with your morning dose.</div>
+            <div class="tip-row">
+              <span class="badge badge-green">Diabetes management</span>
+              <span class="badge badge-blue">Medication tips</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MEDICATIONS -->
+    <div class="page" id="page-medications">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem">
+        <div class="page-title" style="margin:0">My medications</div>
+        <button class="btn btn-primary" onclick="toggleAddForm()"><i class="ti ti-plus"></i> Add medication</button>
+      </div>
+
+      <div class="card">
+        <div id="med-list">
+          <div class="med-item">
+            <div class="med-icon green"><i class="ti ti-pill"></i></div>
+            <div style="flex:1"><div class="med-name">Metformin 500mg</div><div class="med-time">8:00 AM · Daily · For diabetes</div></div>
+            <span class="badge badge-amber">Active</span>
+          </div>
+          <div class="med-item">
+            <div class="med-icon blue"><i class="ti ti-pill"></i></div>
+            <div style="flex:1"><div class="med-name">Amlodipine 5mg</div><div class="med-time">2:00 PM · Daily · For blood pressure</div></div>
+            <span class="badge badge-green">Active</span>
+          </div>
+          <div class="med-item">
+            <div class="med-icon amber"><i class="ti ti-pill"></i></div>
+            <div style="flex:1"><div class="med-name">Vitamin D3 1000 IU</div><div class="med-time">9:00 PM · Daily · Supplement</div></div>
+            <span class="badge badge-green">Active</span>
+          </div>
+        </div>
+        <div class="add-form" id="add-form">
+          <div style="font-size:14px;font-weight:500;color:var(--color-text-primary);margin-bottom:4px">New medication</div>
+          <div class="form-row">
+            <div class="form-field"><label>Medication name</label><input id="new-name" placeholder="e.g. Aspirin 75mg"></div>
+            <div class="form-field"><label>Frequency</label><select id="new-freq"><option>Daily</option><option>Twice daily</option><option>Weekly</option><option>As needed</option></select></div>
+          </div>
+          <div class="form-row">
+            <div class="form-field"><label>Time</label><input id="new-time" type="time" value="08:00"></div>
+            <div class="form-field"><label>Purpose</label><input id="new-purpose" placeholder="e.g. Blood thinner"></div>
+          </div>
+          <div style="display:flex;gap:8px">
+            <button class="btn btn-primary" onclick="addMed()">Save medication</button>
+            <button class="btn" onclick="toggleAddForm()">Cancel</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Medication interactions check</div>
+        <div style="font-size:13px;color:var(--color-text-secondary);margin-bottom:10px">AI-powered analysis of your current medications</div>
+        <div class="alert-success"><i class="ti ti-shield-check" style="font-size:18px"></i> <span>No harmful interactions detected between your current 3 medications. Always consult your doctor before adding new medications.</span></div>
+      </div>
+    </div>
+
+    <!-- VITALS -->
+    <div class="page" id="page-vitals">
+      <div class="page-title">Vitals tracker</div>
+      <div class="vitals-grid" style="margin-bottom:1rem">
+        <div class="vital-item">
+          <div class="vital-label"><i class="ti ti-heart-rate" aria-hidden="true"></i> Blood pressure</div>
+          <div class="vital-val">118/76 <span class="vital-unit">mmHg</span></div>
+          <div class="vital-trend trend-good">↓ Improved from last week</div>
+        </div>
+        <div class="vital-item">
+          <div class="vital-label"><i class="ti ti-droplet" aria-hidden="true"></i> Blood glucose</div>
+          <div class="vital-val">102 <span class="vital-unit">mg/dL</span></div>
+          <div class="vital-trend trend-good">✓ Within target range</div>
+        </div>
+        <div class="vital-item">
+          <div class="vital-label"><i class="ti ti-activity" aria-hidden="true"></i> Heart rate</div>
+          <div class="vital-val">72 <span class="vital-unit">bpm</span></div>
+          <div class="vital-trend trend-good">✓ Normal resting rate</div>
+        </div>
+        <div class="vital-item">
+          <div class="vital-label"><i class="ti ti-weight" aria-hidden="true"></i> BMI</div>
+          <div class="vital-val">24.1 <span class="vital-unit">kg/m²</span></div>
+          <div class="vital-trend trend-good">✓ Healthy range</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Log a new reading</div>
+        <div class="form-row" style="margin-bottom:10px">
+          <div class="form-field"><label>Vital type</label><select id="vital-type"><option>Blood pressure</option><option>Blood glucose</option><option>Heart rate</option><option>Weight</option></select></div>
+          <div class="form-field"><label>Value</label><input id="vital-value" placeholder="e.g. 120/80"></div>
+        </div>
+        <button class="btn btn-primary" onclick="logVital()"><i class="ti ti-device-floppy"></i> Log reading</button>
+        <div id="vital-confirm" style="display:none;margin-top:10px;font-size:13px" class="alert-success"><i class="ti ti-check"></i> Reading saved successfully!</div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Blood pressure — last 7 days</div>
+        <canvas id="bp-chart" height="140"></canvas>
+      </div>
+    </div>
+
+    <!-- AI ASSISTANT -->
+    <div class="page" id="page-ai">
+      <div class="page-title">AI health assistant</div>
+      <div class="card">
+        <div class="chat-container" id="chat-box">
+          <div class="chat-msg">
+            <div class="chat-avatar ai-avatar"><i class="ti ti-robot" style="font-size:14px"></i></div>
+            <div class="chat-bubble ai">Hello! I'm your MediAid AI assistant. I can help you understand your medications, explain health terms, answer general wellness questions, and remind you about your health schedule. How can I help you today?</div>
+          </div>
+        </div>
+        <div style="margin-bottom:8px">
+          <span style="font-size:11px;color:var(--color-text-tertiary)">Try asking:</span>
+          <div>
+            <span class="chip" onclick="askChip(this)">What are side effects of Metformin?</span>
+            <span class="chip" onclick="askChip(this)">How to lower blood pressure naturally?</span>
+            <span class="chip" onclick="askChip(this)">What is my adherence rate?</span>
+            <span class="chip" onclick="askChip(this)">Tips for remembering medications</span>
+          </div>
+        </div>
+        <div class="chat-input-row">
+          <input id="chat-input" placeholder="Ask about your health, medications, or wellness…" onkeydown="if(event.key==='Enter')sendChat()">
+          <button class="btn btn-primary" onclick="sendChat()"><i class="ti ti-send"></i></button>
+        </div>
+        <div id="ai-loading" style="display:none;font-size:12px;color:var(--color-text-secondary);margin-top:8px"><i class="ti ti-loader-2" style="font-size:14px"></i> AI is thinking…</div>
+      </div>
+      <div class="card" style="margin-top:0">
+        <div style="font-size:12px;color:var(--color-text-tertiary);display:flex;align-items:center;gap:6px"><i class="ti ti-shield-lock" style="font-size:14px"></i> Responses are AI-generated for educational purposes. Always consult a qualified healthcare professional for medical advice.</div>
+      </div>
+    </div>
+
+    <!-- INSIGHTS -->
+    <div class="page" id="page-insights">
+      <div class="page-title">Health insights</div>
+      <div class="cards-row">
+        <div class="metric"><div class="metric-label">Adherence — June</div><div class="metric-value">87%</div><div class="metric-sub">↑ 4% from May</div></div>
+        <div class="metric"><div class="metric-label">Doses taken</div><div class="metric-value">52</div><div class="metric-sub">of 60 this month</div></div>
+        <div class="metric"><div class="metric-label">Best streak</div><div class="metric-value">14 days</div><div class="metric-sub">consecutive tracking</div></div>
+        <div class="metric"><div class="metric-label">Health score</div><div class="metric-value">78/100</div><div class="metric-sub">Good — improving</div></div>
+      </div>
+      <div class="grid2">
+        <div class="card">
+          <div class="card-title">Adherence trend — 6 months</div>
+          <canvas id="trend-chart" height="160"></canvas>
+        </div>
+        <div class="card">
+          <div class="card-title">AI-generated recommendations</div>
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <div style="display:flex;gap:10px;align-items:flex-start;padding-bottom:10px;border-bottom:0.5px solid var(--color-border-tertiary)">
+              <i class="ti ti-clock" style="color:#1D9E75;font-size:18px;margin-top:1px" aria-hidden="true"></i>
+              <div><div style="font-size:13px;font-weight:500;color:var(--color-text-primary)">Set earlier reminder</div><div style="font-size:12px;color:var(--color-text-secondary);margin-top:2px">You miss Metformin most on busy mornings. Try a 7:45 AM alarm.</div></div>
+            </div>
+            <div style="display:flex;gap:10px;align-items:flex-start;padding-bottom:10px;border-bottom:0.5px solid var(--color-border-tertiary)">
+              <i class="ti ti-droplet" style="color:#185FA5;font-size:18px;margin-top:1px" aria-hidden="true"></i>
+              <div><div style="font-size:13px;font-weight:500;color:var(--color-text-primary)">Increase water intake</div><div style="font-size:12px;color:var(--color-text-secondary);margin-top:2px">Blood glucose spikes correlate with low hydration days in your logs.</div></div>
+            </div>
+            <div style="display:flex;gap:10px;align-items:flex-start">
+              <i class="ti ti-walk" style="color:#854F0B;font-size:18px;margin-top:1px" aria-hidden="true"></i>
+              <div><div style="font-size:13px;font-weight:500;color:var(--color-text-primary)">Light evening walk</div><div style="font-size:12px;color:var(--color-text-secondary);margin-top:2px">30 minutes of walking after dinner can reduce fasting glucose by 10–15%.</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<script>
+document.getElementById('today-date').textContent = new Date().toLocaleDateString('en-IN',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+
+function showPage(id, el) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  el.classList.add('active');
+  if(id==='vitals') setTimeout(drawBpChart,100);
+  if(id==='insights') setTimeout(drawTrendChart,100);
+}
+
+function markTaken(med) {
+  document.getElementById('missed-alert').style.display='none';
+  document.getElementById('metformin-status').textContent='Taken';
+  document.getElementById('metformin-status').className='med-status status-taken';
+  document.getElementById('meds-taken-count').textContent='3/3';
+}
+
+function toggleAddForm() {
+  const f = document.getElementById('add-form');
+  f.classList.toggle('open');
+}
+
+function addMed() {
+  const name = document.getElementById('new-name').value.trim();
+  const freq = document.getElementById('new-freq').value;
+  const time = document.getElementById('new-time').value;
+  const purpose = document.getElementById('new-purpose').value.trim();
+  if(!name) return;
+  const colors = ['green','blue','amber'];
+  const color = colors[Math.floor(Math.random()*3)];
+  const item = document.createElement('div');
+  item.className = 'med-item';
+  item.innerHTML = `<div class="med-icon ${color}"><i class="ti ti-pill"></i></div><div style="flex:1"><div class="med-name">${name}</div><div class="med-time">${time} · ${freq}${purpose?' · '+purpose:''}</div></div><span class="badge badge-green">Active</span>`;
+  document.getElementById('med-list').appendChild(item);
+  document.getElementById('new-name').value='';
+  document.getElementById('new-purpose').value='';
+  document.getElementById('add-form').classList.remove('open');
+}
+
+const days = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+const adherence = [100,67,100,100,33,100,100];
+const wbars = document.getElementById('week-bars');
+if(wbars){
+  days.forEach((d,i)=>{
+    const pct = adherence[i];
+    const color = pct===100?'#1D9E75':pct>=67?'#EF9F27':'#E24B4A';
+    wbars.innerHTML+=`<div style="display:flex;align-items:center;gap:8px;margin-bottom:5px"><span style="font-size:11px;color:var(--color-text-secondary);width:24px">${d}</span><div style="flex:1;height:8px;background:var(--color-background-secondary);border-radius:4px;overflow:hidden"><div style="width:${pct}%;height:100%;background:${color};border-radius:4px"></div></div><span style="font-size:11px;color:var(--color-text-secondary);width:30px;text-align:right">${pct}%</span></div>`;
+  });
+}
+
+function logVital() {
+  const c = document.getElementById('vital-confirm');
+  c.style.display='flex';
+  setTimeout(()=>{c.style.display='none'},3000);
+}
+
+let bpChartInst, trendChartInst;
+function drawBpChart(){
+  const ctx = document.getElementById('bp-chart');
+  if(!ctx) return;
+  if(bpChartInst) bpChartInst.destroy();
+  const isDark = document.body.classList.contains('dark')||getComputedStyle(document.body).getPropertyValue('--color-text-primary').trim()==='#fff';
+  const tc = isDark?'rgba(255,255,255,0.4)':'rgba(0,0,0,0.3)';
+  bpChartInst = new Chart(ctx,{type:'line',data:{labels:['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],datasets:[{label:'Systolic',data:[128,122,125,118,120,116,118],borderColor:'#1D9E75',backgroundColor:'rgba(29,158,117,0.1)',tension:.4,fill:true},{label:'Diastolic',data:[82,79,80,76,78,74,76],borderColor:'#185FA5',backgroundColor:'rgba(24,95,165,0.1)',tension:.4,fill:true}]},options:{responsive:true,plugins:{legend:{labels:{color:tc,font:{size:11}}}},scales:{y:{grid:{color:'rgba(128,128,128,0.12)'},ticks:{color:tc,font:{size:11}}},x:{grid:{display:false},ticks:{color:tc,font:{size:11}}}}}});
+}
+
+function drawTrendChart(){
+  const ctx = document.getElementById('trend-chart');
+  if(!ctx) return;
+  if(trendChartInst) trendChartInst.destroy();
+  const isDark = document.body.classList.contains('dark')||getComputedStyle(document.body).getPropertyValue('--color-text-primary').trim()==='#fff';
+  const tc = isDark?'rgba(255,255,255,0.4)':'rgba(0,0,0,0.3)';
+  trendChartInst = new Chart(ctx,{type:'bar',data:{labels:['Jan','Feb','Mar','Apr','May','Jun'],datasets:[{label:'Adherence %',data:[72,75,80,78,83,87],backgroundColor:'rgba(29,158,117,0.7)',borderRadius:4}]},options:{responsive:true,plugins:{legend:{labels:{color:tc,font:{size:11}}}},scales:{y:{min:60,max:100,grid:{color:'rgba(128,128,128,0.12)'},ticks:{color:tc,font:{size:11}}},x:{grid:{display:false},ticks:{color:tc,font:{size:11}}}}}});
+}
+
+function askChip(el){ document.getElementById('chat-input').value=el.textContent; sendChat(); }
+
+const AI_RESPONSES = {
+  'metformin': 'Metformin commonly causes nausea, stomach upset, and diarrhea — especially when starting treatment. These usually improve after a few weeks. Taking it with food significantly reduces these side effects. Rare but serious: lactic acidosis (seek help if you feel unusual muscle pain or weakness). Always consult your doctor for personalized advice.',
+  'blood pressure': 'Natural ways to lower blood pressure include: (1) Reducing sodium intake — aim for under 2,300mg/day. (2) Regular aerobic exercise — 30 min, 5 days/week. (3) DASH diet — rich in fruits, vegetables, whole grains. (4) Reducing alcohol and quitting smoking. (5) Managing stress through yoga or meditation. Your current reading of 118/76 mmHg is healthy!',
+  'adherence': 'Your current medication adherence rate is 87% this month — that\'s quite good! You\'ve taken 52 out of 60 scheduled doses. The WHO recommends >80% adherence for effective chronic disease management. Your main gap is Metformin on busy mornings. I recommend setting a 7:45 AM alarm paired with your breakfast routine.',
+  'remembering': 'Practical tips to improve medication adherence: (1) Pill organizers — set up the whole week on Sunday. (2) Link each dose to a daily habit — e.g., Metformin = breakfast, always together. (3) Phone alarms with specific labels. (4) Keep medications visible on your dining table or nightstand. (5) Apps like MediAid track your progress and send reminders.',
+  'default': 'That\'s a great health question! Based on your current profile, I can see you\'re managing diabetes and blood pressure. For the most accurate and personalized guidance, I recommend discussing this with your healthcare provider. Would you like tips on medication timing, understanding your vitals, or general wellness instead?'
+};
+
+function getResponse(msg){
+  msg = msg.toLowerCase();
+  if(msg.includes('metformin')||msg.includes('side effect')) return AI_RESPONSES.metformin;
+  if(msg.includes('blood pressure')||msg.includes('pressure')) return AI_RESPONSES['blood pressure'];
+  if(msg.includes('adherence')||msg.includes('rate')) return AI_RESPONSES.adherence;
+  if(msg.includes('remember')||msg.includes('tip')||msg.includes('forget')) return AI_RESPONSES.remembering;
+  return AI_RESPONSES.default;
+}
+
+function sendChat(){
+  const inp = document.getElementById('chat-input');
+  const msg = inp.value.trim();
+  if(!msg) return;
+  const box = document.getElementById('chat-box');
+  box.innerHTML += `<div class="chat-msg user"><div class="chat-avatar user-avatar">P</div><div class="chat-bubble user">${msg}</div></div>`;
+  inp.value='';
+  box.scrollTop = box.scrollHeight;
+  document.getElementById('ai-loading').style.display='flex';
+  setTimeout(()=>{
+    document.getElementById('ai-loading').style.display='none';
+    const resp = getResponse(msg);
+    box.innerHTML += `<div class="chat-msg"><div class="chat-avatar ai-avatar"><i class="ti ti-robot" style="font-size:14px"></i></div><div class="chat-bubble ai">${resp}</div></div>`;
+    box.scrollTop = box.scrollHeight;
+  }, 1200);
+}
+</script>
